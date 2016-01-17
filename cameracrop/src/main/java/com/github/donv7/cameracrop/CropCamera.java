@@ -19,29 +19,30 @@ import java.util.Date;
 
 public class CropCamera {
 
-    // upload your photo
-    private Callback mCallback;
-    private Activity mActivity;
-    private static Uri mImageUri;
+    // region VARS
+    public static final String LOG_TAG = CropCamera.class.getSimpleName();
     private final int ACTION_REQUEST_GALLERY = 0;
     private final int ACTION_REQUEST_CAMERA = 1;
     private final int CROP_INTENT_RESULT_CODE = 2;
-    public static final String LOG_TAG = CropCamera.class.getSimpleName();
+    private Callback mCallback;
+    private Activity mActivity;
+    private Uri mImageUri;
+    // endregion
 
+    // region CTOR
     public CropCamera(Activity callingActivity) {
         mActivity = callingActivity;
     }
+    // endregion
 
     // region TEST CAMERA CROP
-    public void testCameraCrop(Callback callback) {
+    public void cameraOrGalleryAndCrop(Callback callback) {
         mCallback = callback;
 
-
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setTitle("Title");
+        builder.setTitle("Choose Image Source");
         builder.setItems(new CharSequence[]{"Gallery", "Camera"},
                 new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -85,7 +86,7 @@ public class CropCamera {
     }
     // endregion
 
-    // region ON ACTIVITY RESULT
+    // region HANDLE ACTIVITY RESULT
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
         // check if the result succeeded
         if (resultCode == Activity.RESULT_OK) {

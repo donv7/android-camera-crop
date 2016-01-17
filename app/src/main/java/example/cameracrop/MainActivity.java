@@ -19,7 +19,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private CropCamera mCropCamera;
+    private CropCamera mCameraCrop;
     @InjectView(R.id.testImageView) ImageView testImageView;
 
     @Override
@@ -28,12 +28,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        mCropCamera = new CropCamera(this);
+        mCameraCrop = new CropCamera(this);
     }
 
     @OnClick({R.id.testButton})
     public void testButtonOnClick(View v) {
-        mCropCamera.testCameraCrop(new Callback() {
+        mCameraCrop.cameraOrGalleryAndCrop(new Callback() {
             @Override
             public void success(Bitmap croppedImage) {
                 testImageView.setImageBitmap(croppedImage);
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void failure(Throwable throwable) {
-                Log.e(LOG_TAG, "CameraCrop failed!");
+                Log.e(LOG_TAG, "CameraCrop failed!", throwable);
             }
         });
     }
@@ -49,6 +49,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mCropCamera.handleActivityResult(requestCode, resultCode, data);
+        mCameraCrop.handleActivityResult(requestCode, resultCode, data);
     }
 }
