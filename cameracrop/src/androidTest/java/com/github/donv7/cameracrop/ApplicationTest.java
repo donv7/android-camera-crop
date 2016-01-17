@@ -1,4 +1,4 @@
-package com.jdelorenzo.cameracrop;
+package com.github.donv7.cameracrop;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

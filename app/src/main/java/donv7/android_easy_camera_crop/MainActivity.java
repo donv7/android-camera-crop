@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.jdelorenzo.cameracrop.CropCamera;
-import com.jdelorenzo.cameracrop.OnCameraCrop;
+import com.github.donv7.cameracrop.CropCamera;
+import com.github.donv7.cameracrop.OnCameraCrop;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

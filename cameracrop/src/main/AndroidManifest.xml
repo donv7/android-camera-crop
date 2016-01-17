@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jdelorenzo.cameracrop">
+    package="com.github.donv7.cameracrop">
 
     <application
         android:allowBackup="true"
