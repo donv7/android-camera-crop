@@ -35,7 +35,7 @@ public class CameraCrop {
     }
     // endregion
 
-    // region TEST CAMERA CROP
+    // region CAMERA OR GALLERY AND CROP
     public void cameraOrGalleryAndCrop(Callback callback) {
         mCallback = callback;
 
