@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public class CropCamera {
@@ -34,13 +36,15 @@ public class CropCamera {
     private final int CROP_INTENT_RESULT_CODE = 2;
     public static final String LOG_TAG = CropCamera.class.getSimpleName();
 
-    public CropCamera(Activity callingActivity, OnCameraCrop listener) {
+    public CropCamera(Activity callingActivity) {
         mActivity = callingActivity;
-        this.listener = listener;
     }
 
     // region TEST CAMERA CROP
-    public void testCameraCrop() {
+    public void testCameraCrop(OnCameraCrop callback) {
+        listener = callback;
+
+
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle("Title");
         builder.setItems(new CharSequence[]{"Gallery", "Camera"},
@@ -173,10 +177,5 @@ public class CropCamera {
         }
     }
     // endregion
-
-    private static int convertDpsToPixels(Context ctx, int dps) {
-        final float scale = ctx.getResources().getDisplayMetrics().density;
-        return (int) (dps * scale + 0.5f);
-    }
 
 }
