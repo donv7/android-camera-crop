@@ -4,6 +4,7 @@ Android library for simplified photo taking and cropping
 # WIP
 
 TODO:
+- use android-crop for cropping
 - clean up cameraOrGalleryAndCrop and handleActivityResult
 - make sure cameraOrGalleryAndCrop and handleActivityResult work for all phones
 - provide multiple options instead of just cameraOrGalleryAndCrop
