@@ -17,10 +17,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class CropCamera {
+public class CameraCrop {
 
     // region VARS
-    public static final String LOG_TAG = CropCamera.class.getSimpleName();
+    public static final String LOG_TAG = CameraCrop.class.getSimpleName();
     private final int ACTION_REQUEST_GALLERY = 0;
     private final int ACTION_REQUEST_CAMERA = 1;
     private final int CROP_INTENT_RESULT_CODE = 2;
@@ -30,7 +30,7 @@ public class CropCamera {
     // endregion
 
     // region CTOR
-    public CropCamera(Activity callingActivity) {
+    public CameraCrop(Activity callingActivity) {
         mActivity = callingActivity;
     }
     // endregion

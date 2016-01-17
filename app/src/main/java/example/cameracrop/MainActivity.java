@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.github.donv7.cameracrop.CropCamera;
+import com.github.donv7.cameracrop.CameraCrop;
 import com.github.donv7.cameracrop.Callback;
 
 import butterknife.ButterKnife;
@@ -19,7 +19,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private CropCamera mCameraCrop;
+    private CameraCrop mCameraCrop;
     @InjectView(R.id.testImageView) ImageView testImageView;
 
     @Override
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        mCameraCrop = new CropCamera(this);
+        mCameraCrop = new CameraCrop(this);
     }
 
     @OnClick({R.id.testButton})
