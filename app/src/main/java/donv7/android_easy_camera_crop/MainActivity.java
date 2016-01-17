@@ -4,46 +4,39 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.jdelorenzo.cameracrop.CropCamera;
 import com.jdelorenzo.cameracrop.OnCameraCrop;
 
+import butterknife.InjectView;
+import butterknife.OnClick;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView testImageView;
     private CropCamera mCropCamera;
+    @InjectView(R.id.testImageView) ImageView testImageView;
 
-    // region CTOR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mCropCamera = new CropCamera(this);
+    }
 
-        final Button button = (Button) findViewById(R.id.testButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                Log.d("MainActivity", "testButton clicked!");
-
-                //Add camera stuff here
-                mCropCamera.testCameraCrop(new OnCameraCrop(){
-                    @Override
-                    public void onCropFinished(Bitmap croppedImage, Boolean success) {
-                        if (success) {
-                            testImageView.setImageBitmap(croppedImage);
-                        }
-                    }
-                });
+    @OnClick({R.id.testButton})
+    public void testButtonOnClick(View v) {
+        mCropCamera.testCameraCrop(new OnCameraCrop() {
+            @Override
+            public void onCropFinished(Bitmap croppedImage, Boolean success) {
+                if (success) {
+                    testImageView.setImageBitmap(croppedImage);
+                }
             }
         });
-
-        testImageView = (ImageView) findViewById(R.id.testImageView);
     }
 
     @Override
