@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.jdelorenzo.cameracrop.CropCamera;
 import com.jdelorenzo.cameracrop.OnCameraCrop;
 
+import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.inject(this);
 
         mCropCamera = new CropCamera(this);
     }
