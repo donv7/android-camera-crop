@@ -1,4 +1,4 @@
-package donv7.android_easy_camera_crop;
+package example.cameracrop;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

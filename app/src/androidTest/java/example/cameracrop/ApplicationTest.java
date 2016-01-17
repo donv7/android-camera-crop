@@ -1,4 +1,4 @@
-package donv7.android_easy_camera_crop;
+package example.cameracrop;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
