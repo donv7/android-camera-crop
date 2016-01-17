@@ -20,7 +20,7 @@ import java.util.Date;
 public class CropCamera {
 
     // upload your photo
-    private OnCameraCrop listener;
+    private Callback mCallback;
     private Activity mActivity;
     private static Uri mImageUri;
     private final int ACTION_REQUEST_GALLERY = 0;
@@ -33,8 +33,8 @@ public class CropCamera {
     }
 
     // region TEST CAMERA CROP
-    public void testCameraCrop(OnCameraCrop callback) {
-        listener = callback;
+    public void testCameraCrop(Callback callback) {
+        mCallback = callback;
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
@@ -154,11 +154,11 @@ public class CropCamera {
                     }
                 }
                 if(displayImage != null) {
-                    listener.onCropFinished(displayImage, true);
+                    mCallback.success(displayImage);
                 }
                 else {
                     Log.e(LOG_TAG, "Image to display was null.");
-                    listener.onCropFinished(null, false);
+                    mCallback.failure(new Exception());
                 }
 
             } else {

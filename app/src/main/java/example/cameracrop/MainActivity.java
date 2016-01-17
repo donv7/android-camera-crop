@@ -4,11 +4,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.github.donv7.cameracrop.CropCamera;
-import com.github.donv7.cameracrop.OnCameraCrop;
+import com.github.donv7.cameracrop.Callback;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -17,6 +18,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
     private CropCamera mCropCamera;
     @InjectView(R.id.testImageView) ImageView testImageView;
 
@@ -31,12 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick({R.id.testButton})
     public void testButtonOnClick(View v) {
-        mCropCamera.testCameraCrop(new OnCameraCrop() {
+        mCropCamera.testCameraCrop(new Callback() {
             @Override
-            public void onCropFinished(Bitmap croppedImage, Boolean success) {
-                if (success) {
-                    testImageView.setImageBitmap(croppedImage);
-                }
+            public void success(Bitmap croppedImage) {
+                testImageView.setImageBitmap(croppedImage);
+            }
+
+            @Override
+            public void failure(Throwable throwable) {
+                Log.e(LOG_TAG, "CameraCrop failed!");
             }
         });
     }
