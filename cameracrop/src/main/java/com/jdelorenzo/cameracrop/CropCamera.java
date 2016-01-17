@@ -1,5 +1,6 @@
 package com.jdelorenzo.cameracrop;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -22,21 +23,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class CropCameraActivity extends AppCompatActivity {
+public class CropCamera {
 
     // upload your photo
+    private OnCameraCrop listener;
+    private Activity mActivity;
     private static Uri mImageUri;
-    private Bitmap mImageToUpload;
     private final int ACTION_REQUEST_GALLERY = 0;
     private final int ACTION_REQUEST_CAMERA = 1;
     private final int CROP_INTENT_RESULT_CODE = 2;
-    private boolean mImageChosen;
+    public static final String LOG_TAG = CropCamera.class.getSimpleName();
 
-    private ImageView testImageView;
+    public CropCamera(Activity callingActivity, OnCameraCrop listener) {
+        mActivity = callingActivity;
+        this.listener = listener;
+    }
 
     // region TEST CAMERA CROP
     public void testCameraCrop() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(CropCameraActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle("Title");
         builder.setItems(new CharSequence[]{"Gallery", "Camera"},
                 new DialogInterface.OnClickListener() {
@@ -49,7 +54,7 @@ public class CropCameraActivity extends AppCompatActivity {
                                 // Get the image from gallery
                                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intent.setType("image/*");
-                                startActivityForResult(intent, ACTION_REQUEST_GALLERY);
+                                mActivity.startActivityForResult(intent, ACTION_REQUEST_GALLERY);
 
                                 break;
 
@@ -63,13 +68,13 @@ public class CropCameraActivity extends AppCompatActivity {
                                 String imageFileName = "full_" + timeStamp + ".jpg";
 
                                 // get the path to save the file
-                                File path = CropCameraActivity.this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                                File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
                                 File photo = new File(path, imageFileName);
                                 getCameraImage.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
                                 mImageUri = Uri.fromFile(photo);
 
-                                startActivityForResult(getCameraImage, ACTION_REQUEST_CAMERA);
+                                mActivity.startActivityForResult(getCameraImage, ACTION_REQUEST_CAMERA);
 
                                 break;
 
@@ -85,10 +90,9 @@ public class CropCameraActivity extends AppCompatActivity {
     // endregion
 
     // region ON ACTIVITY RESULT
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
         // check if the result succeeded
-        if (resultCode == RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             // get the timestamp for this action
             String timeStamp = (new SimpleDateFormat("yyyyMMdd'T'HHmmss")).format(new Date());
 
@@ -96,7 +100,7 @@ public class CropCameraActivity extends AppCompatActivity {
             String imageFileName = "crop_" + timeStamp + ".jpg";
 
             // get the path to save the file
-            File path = CropCameraActivity.this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
             // create the actual file in the FS of the device
             File croppedPhotoFile = new File(path, imageFileName);
@@ -122,7 +126,7 @@ public class CropCameraActivity extends AppCompatActivity {
                     cropIntent.putExtra("outputX", 256);
                     cropIntent.putExtra("outputY", 256);
                     cropIntent.putExtra("return-data", true);
-                    startActivityForResult(cropIntent, CROP_INTENT_RESULT_CODE);
+                    mActivity.startActivityForResult(cropIntent, CROP_INTENT_RESULT_CODE);
                 } catch (ActivityNotFoundException anfe) {
                     // the device does not support cropping...attempt to auto crop the image...
                     Log.e("MainActivity", "anfe", anfe);
@@ -130,7 +134,7 @@ public class CropCameraActivity extends AppCompatActivity {
 
             } else if(requestCode == CROP_INTENT_RESULT_CODE) {
                 // setup vars
-                Bitmap displayImage = null;
+                Bitmap displayImage;
 
                 // attempt to get the image from the intent extras
                 try {
@@ -146,25 +150,19 @@ public class CropCameraActivity extends AppCompatActivity {
                     // attempt to get the image to upload from the data
                     try {
                         // this is the image that we will send in the post request
-                        displayImage = MediaStore.Images.Media.getBitmap(CropCameraActivity.this.getContentResolver(), data.getData());
+                        displayImage = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), data.getData());
                     } catch (IOException e) {
                         Log.e("MainActivity", "ioe", e);
                     } catch (NullPointerException npe) {
                         Log.e("MainActivity", "npe", npe);
                     }
                 }
-
-                mImageToUpload = displayImage;
-
                 if(displayImage != null) {
-                    // scale the display image
-                    displayImage = Bitmap.createScaledBitmap(displayImage,
-                            convertDpsToPixels(CropCameraActivity.this, 50),
-                            convertDpsToPixels(CropCameraActivity.this, 50), false);
-                    // set it in the UI
-                    testImageView.setImageBitmap(displayImage);
-
-                    mImageChosen = true;
+                    listener.onCropFinished(displayImage, true);
+                }
+                else {
+                    Log.e(LOG_TAG, "Image to display was null.");
+                    listener.onCropFinished(null, false);
                 }
 
             } else {
