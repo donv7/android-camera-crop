@@ -38,6 +38,14 @@ public class CameraCrop {
     public void cameraOrGalleryAndCrop(Callback callback) {
         mCallback = callback;
 
+        // create a file for the image
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+        String timeStamp = dateFormat.format(new Date());
+        String imageFileName = "full_" + timeStamp + ".jpg";
+        File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File photo = new File(path, imageFileName);
+        mImageUri = Uri.fromFile(photo);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle("Choose Image Source");
         builder.setItems(new CharSequence[]{"Gallery", "Camera"},
@@ -46,33 +54,17 @@ public class CameraCrop {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-
-                                // Get the image from gallery
-                                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                // get the image from gallery
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intent.setType("image/*");
                                 mActivity.startActivityForResult(intent, ACTION_REQUEST_GALLERY);
-
                                 break;
 
                             case 1:
-
-                                //take a picture with the camera
+                                // take a picture with the camera
                                 Intent getCameraImage = new Intent("android.media.action.IMAGE_CAPTURE");
-
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-                                String timeStamp = dateFormat.format(new Date());
-                                String imageFileName = "full_" + timeStamp + ".jpg";
-                                File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                                File photo = new File(path, imageFileName);
-
-                                getCameraImage.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
-                                mImageUri = Uri.fromFile(photo);
-
+                                getCameraImage.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
                                 mActivity.startActivityForResult(getCameraImage, ACTION_REQUEST_CAMERA);
-
-                                break;
-
-                            default:
                                 break;
                         }
                     }
@@ -86,9 +78,9 @@ public class CameraCrop {
     // region HANDLE ACTIVITY RESULT
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK &&
-                requestCode == ACTION_REQUEST_GALLERY ||
-                requestCode == ACTION_REQUEST_CAMERA ||
-                requestCode == Crop.REQUEST_CROP) {
+                (requestCode == ACTION_REQUEST_GALLERY ||
+                        requestCode == ACTION_REQUEST_CAMERA ||
+                        requestCode == Crop.REQUEST_CROP)) {
             mCallback.failure(new Exception("Bad request code!"));
             return;
         }
