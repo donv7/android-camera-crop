@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "donv7.android_easy_camera_crop"
+        applicationId "donv7.android_camera_crop"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1

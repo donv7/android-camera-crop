@@ -11,7 +11,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.soundcloud.android.crop.Crop;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -88,22 +91,11 @@ public class CameraCrop {
 
     // region HANDLE ACTIVITY RESULT
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
-        // check if the result succeeded
         if (resultCode == Activity.RESULT_OK) {
-            // get the timestamp for this action
             String timeStamp = (new SimpleDateFormat("yyyyMMdd'T'HHmmss")).format(new Date());
-
-            // create the file name of the image that will be cropped
             String imageFileName = "crop_" + timeStamp + ".jpg";
-
-            // get the path to save the file
             File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-            // create the actual file in the FS of the device
             File croppedPhotoFile = new File(path, imageFileName);
-
-            // cache the resource identifier of this image so we can access it later
-            Uri croppedPhotoUri = Uri.fromFile(croppedPhotoFile);
 
             // determine where the picture will be/is coming from
             if(requestCode == ACTION_REQUEST_GALLERY || requestCode == ACTION_REQUEST_CAMERA) {
@@ -112,34 +104,14 @@ public class CameraCrop {
                         ? data.getData()
                         : mImageUri;
 
+                Crop.of(mImageUri, mImageUri).asSquare().start(mActivity);
+
+            } else if(requestCode == Crop.REQUEST_CROP) {
+                Bitmap displayImage = null;
                 try {
-                    // generate the Intent to crop the pic and temporarily save it on the device
-                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                    cropIntent.setDataAndType(mImageUri, "image/*");
-                    cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, croppedPhotoUri);
-                    cropIntent.putExtra("crop", "true");
-                    cropIntent.putExtra("aspectX", 1);
-                    cropIntent.putExtra("aspectY", 1);
-                    cropIntent.putExtra("outputX", 256);
-                    cropIntent.putExtra("outputY", 256);
-                    cropIntent.putExtra("return-data", true);
-                    mActivity.startActivityForResult(cropIntent, CROP_INTENT_RESULT_CODE);
-                } catch (ActivityNotFoundException anfe) {
-                    // the device does not support cropping...attempt to auto crop the image...
-                    Log.e("MainActivity", "anfe", anfe);
-                }
-
-            } else if(requestCode == CROP_INTENT_RESULT_CODE) {
-                // setup vars
-                Bitmap displayImage;
-
-                // attempt to get the image from the intent extras
-                try {
-                    displayImage = (Bitmap) data.getExtras().get("data");
-                } catch(NullPointerException npe) {
-                    displayImage = null;
-                    Log.e("MainActivity", "npe", npe);
-
+                    displayImage = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), mImageUri);
+                } catch(Exception e) {
+                    Log.e("MainActivity", "e", e);
                 }
 
                 // if we have a valid display image, use it
