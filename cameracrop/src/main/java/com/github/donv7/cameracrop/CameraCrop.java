@@ -2,7 +2,6 @@ package com.github.donv7.cameracrop;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,7 +13,6 @@ import android.util.Log;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,10 +21,8 @@ import java.util.Date;
 public class CameraCrop {
 
     // region VARS
-    public static final String LOG_TAG = CameraCrop.class.getSimpleName();
     private final int ACTION_REQUEST_GALLERY = 0;
     private final int ACTION_REQUEST_CAMERA = 1;
-    private final int CROP_INTENT_RESULT_CODE = 2;
     private Callback mCallback;
     private Activity mActivity;
     private Uri mImageUri;
@@ -66,11 +62,9 @@ public class CameraCrop {
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
                                 String timeStamp = dateFormat.format(new Date());
                                 String imageFileName = "full_" + timeStamp + ".jpg";
-
-                                // get the path to save the file
                                 File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
                                 File photo = new File(path, imageFileName);
+
                                 getCameraImage.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
                                 mImageUri = Uri.fromFile(photo);
 
@@ -91,54 +85,29 @@ public class CameraCrop {
 
     // region HANDLE ACTIVITY RESULT
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            String timeStamp = (new SimpleDateFormat("yyyyMMdd'T'HHmmss")).format(new Date());
-            String imageFileName = "crop_" + timeStamp + ".jpg";
-            File path = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            File croppedPhotoFile = new File(path, imageFileName);
+        if (resultCode != Activity.RESULT_OK &&
+                requestCode == ACTION_REQUEST_GALLERY ||
+                requestCode == ACTION_REQUEST_CAMERA ||
+                requestCode == Crop.REQUEST_CROP) {
+            mCallback.failure(new Exception("Bad request code!"));
+            return;
+        }
 
-            // determine where the picture will be/is coming from
-            if(requestCode == ACTION_REQUEST_GALLERY || requestCode == ACTION_REQUEST_CAMERA) {
-                // determine the appropriate resource id of the image to be cropped
-                mImageUri = requestCode == ACTION_REQUEST_GALLERY
-                        ? data.getData()
-                        : mImageUri;
-
+        switch(requestCode){
+            case ACTION_REQUEST_GALLERY:
+                Crop.of(data.getData(), mImageUri).asSquare().start(mActivity);
+                break;
+            case ACTION_REQUEST_CAMERA:
                 Crop.of(mImageUri, mImageUri).asSquare().start(mActivity);
-
-            } else if(requestCode == Crop.REQUEST_CROP) {
-                Bitmap displayImage = null;
+                break;
+            case Crop.REQUEST_CROP:
                 try {
-                    displayImage = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), mImageUri);
+                    mCallback.success(MediaStore.Images.Media.getBitmap(
+                            mActivity.getContentResolver(), mImageUri));
                 } catch(Exception e) {
-                    Log.e("MainActivity", "e", e);
+                    mCallback.failure(e);
                 }
-
-                // if we have a valid display image, use it
-                if(displayImage == null) {
-                    // attempt to get the image to upload from the data
-                    try {
-                        // this is the image that we will send in the post request
-                        displayImage = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), data.getData());
-                    } catch (IOException e) {
-                        Log.e("MainActivity", "ioe", e);
-                    } catch (NullPointerException npe) {
-                        Log.e("MainActivity", "npe", npe);
-                    }
-                }
-                if(displayImage != null) {
-                    mCallback.success(displayImage);
-                }
-                else {
-                    Log.e(LOG_TAG, "Image to display was null.");
-                    mCallback.failure(new Exception());
-                }
-
-            } else {
-                Log.e("MainActivity", "idk i think something went wrong maybe, whatever");
-            }
-        } else {
-            Log.d("CreateAccount", String.valueOf(resultCode));
+                break;
         }
     }
     // endregion
